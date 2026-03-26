@@ -10,28 +10,50 @@
 <body class="h-full flash-stage">
 
 <!-- ============================================================= -->
-<!--  LOBBY — visible before a game starts                          -->
+<!--  LOBBY — visible before a game starts  (Variation B: Arcade Marquee) -->
 <!-- ============================================================= -->
 <div id="lobbyView" class="scene scene-lobby">
-    <div class="lobby-shell">
-        <div class="title-stack">
-            <h1 class="title-main">Soc Ops</h1>
-            <p class="title-sub">Social Bingo</p>
+    <div class="marquee-shell">
+
+        <!-- ── Marquee Frame ── -->
+        <div class="marquee-frame">
+            <div class="marquee-lights" aria-hidden="true"></div>
+            <div class="marquee-content">
+                <div class="marquee-badge">Social Bingo</div>
+                <h1 class="title-main">Soc Ops</h1>
+                <p class="marquee-tagline">Find &middot; Match &middot; Win</p>
+            </div>
+            <div class="marquee-lights" aria-hidden="true"></div>
         </div>
 
-        <div class="flash-panel">
-            <h2 class="panel-heading">How To Play</h2>
-            <ul class="rule-list">
-                <li>Find people who match the prompts.</li>
-                <li>Click a square when you find a match.</li>
-                <li>Score five in a row to win.</li>
-            </ul>
+        <!-- ── How To Play strip ── -->
+        <div class="howto-strip" role="list" aria-label="How to play">
+            <div class="howto-tile" role="listitem">
+                <span class="howto-num" aria-hidden="true">1</span>
+                <span class="howto-text">Find someone who matches a prompt</span>
+            </div>
+            <div class="howto-tile" role="listitem">
+                <span class="howto-num" aria-hidden="true">2</span>
+                <span class="howto-text">Tap that square to mark it</span>
+            </div>
+            <div class="howto-tile" role="listitem">
+                <span class="howto-num" aria-hidden="true">3</span>
+                <span class="howto-text">Get five in a row to win</span>
+            </div>
         </div>
 
+        <!-- ── Start CTA ── -->
         <button onclick="launchGame()"
-                class="flash-btn flash-btn-primary">
-            Start Game
+                class="flash-btn flash-btn-primary marquee-cta">
+            &#9654; Start Game
         </button>
+
+        <!-- ── Quick Tips (informational only, no new actions) ── -->
+        <div class="tips-block">
+            <span class="tips-label">Quick Tip</span>
+            <p class="tips-text">The center square is FREE. Diagonals count &mdash; aim for the corners!</p>
+        </div>
+
     </div>
 </div>
 

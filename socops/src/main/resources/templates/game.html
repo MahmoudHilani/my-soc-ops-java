@@ -14,24 +14,37 @@
 <!-- ============================================================= -->
 <div id="lobbyView" class="scene scene-lobby">
     <div class="lobby-shell">
-        <div class="title-stack">
-            <h1 class="title-main">Soc Ops</h1>
-            <p class="title-sub">Social Bingo</p>
+
+        <!-- ── hero column ──────────────────────────────────────── -->
+        <div class="lobby-hero">
+            <span class="lobby-kicker anim-rise" style="animation-delay:0ms">Mission Control ∙ Soc Ops</span>
+            <div class="title-stack anim-rise" style="animation-delay:90ms">
+                <h1 class="title-main">Soc Ops</h1>
+                <p class="title-sub">Social Bingo</p>
+            </div>
+            <p class="lobby-tagline anim-rise" style="animation-delay:190ms">
+                Find the people around you — five in a row wins.
+            </p>
+            <button onclick="launchGame()"
+                    class="flash-btn flash-btn-primary flash-btn-launch anim-rise"
+                    style="animation-delay:290ms"
+                    aria-label="Start Game">
+                &#9654;&nbsp;Start Game
+            </button>
         </div>
 
-        <div class="flash-panel">
-            <h2 class="panel-heading">How To Play</h2>
-            <ul class="rule-list">
-                <li>Find people who match the prompts.</li>
-                <li>Click a square when you find a match.</li>
-                <li>Score five in a row to win.</li>
-            </ul>
+        <!-- ── intel column ─────────────────────────────────────── -->
+        <div class="lobby-intel anim-rise" style="animation-delay:160ms">
+            <div class="flash-panel">
+                <h2 class="panel-heading">Mission Briefing</h2>
+                <ul class="rule-list">
+                    <li>Find people who match the prompts.</li>
+                    <li>Click a square when you find a match.</li>
+                    <li>Score five in a row to win.</li>
+                </ul>
+            </div>
         </div>
 
-        <button onclick="launchGame()"
-                class="flash-btn flash-btn-primary">
-            Start Game
-        </button>
     </div>
 </div>
 

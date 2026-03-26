@@ -10,28 +10,63 @@
 <body class="h-full flash-stage">
 
 <!-- ============================================================= -->
-<!--  LOBBY — visible before a game starts                          -->
+<!--  LOBBY — visible before a game starts  (Variation C)           -->
 <!-- ============================================================= -->
 <div id="lobbyView" class="scene scene-lobby">
-    <div class="lobby-shell">
-        <div class="title-stack">
-            <h1 class="title-main">Soc Ops</h1>
-            <p class="title-sub">Social Bingo</p>
-        </div>
+    <div class="deck-shell">
 
-        <div class="flash-panel">
-            <h2 class="panel-heading">How To Play</h2>
-            <ul class="rule-list">
-                <li>Find people who match the prompts.</li>
-                <li>Click a square when you find a match.</li>
-                <li>Score five in a row to win.</li>
-            </ul>
-        </div>
+        <!-- ── Hero ─────────────────────────────────────────────── -->
+        <header class="deck-hero">
+            <div class="deck-classify-bar">
+                <span class="deck-classify-label">CLASSIFIED</span>
+                <span class="deck-classify-sep">◆</span>
+                <span class="deck-classify-label">OP-CODE: BINGO-5</span>
+            </div>
+            <h1 class="deck-title">Soc Ops</h1>
+            <p class="deck-subtitle">Social Bingo</p>
+            <div class="deck-divider"></div>
+        </header>
 
+        <!-- ── Briefing 01 – Mission Rules ───────────────────────── -->
+        <section class="deck-module deck-module--rules">
+            <div class="deck-module-header">
+                <span class="deck-module-tag">BRIEFING-01</span>
+                <h2 class="deck-module-title">Mission Rules</h2>
+            </div>
+            <ol class="deck-rules">
+                <li>
+                    <span class="deck-rule-num">01</span>
+                    <span class="deck-rule-text">Find people who match the prompts.</span>
+                </li>
+                <li>
+                    <span class="deck-rule-num">02</span>
+                    <span class="deck-rule-text">Select a square when you find a match.</span>
+                </li>
+                <li>
+                    <span class="deck-rule-num">03</span>
+                    <span class="deck-rule-text">Score five in a row to win.</span>
+                </li>
+            </ol>
+        </section>
+
+        <!-- ── Briefing 02 – Objective ───────────────────────────── -->
+        <section class="deck-module deck-module--objective">
+            <div class="deck-module-header">
+                <span class="deck-module-tag">BRIEFING-02</span>
+                <h2 class="deck-module-title">Objective</h2>
+            </div>
+            <p class="deck-objective-text">
+                Complete any row, column, or diagonal on your 5×5 board.
+                The <strong class="deck-highlight">FREE</strong> square at the centre is pre-marked.
+            </p>
+        </section>
+
+        <!-- ── Launch CTA ─────────────────────────────────────────── -->
         <button onclick="launchGame()"
-                class="flash-btn flash-btn-primary">
-            Start Game
+                class="flash-btn flash-btn-primary deck-launch-btn">
+            &#9658; Launch Mission
         </button>
+
     </div>
 </div>
 

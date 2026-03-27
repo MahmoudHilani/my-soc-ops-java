@@ -14,24 +14,43 @@
 <!-- ============================================================= -->
 <div id="lobbyView" class="scene scene-lobby">
     <div class="lobby-shell">
+        <p class="lobby-kicker">Mission Briefing</p>
         <div class="title-stack">
             <h1 class="title-main">Soc Ops</h1>
             <p class="title-sub">Social Bingo</p>
         </div>
 
-        <div class="flash-panel">
-            <h2 class="panel-heading">How To Play</h2>
-            <ul class="rule-list">
-                <li>Find people who match the prompts.</li>
-                <li>Click a square when you find a match.</li>
-                <li>Score five in a row to win.</li>
-            </ul>
+        <p class="lobby-lead">
+            Break the ice fast, meet new people, and race to five in a row.
+        </p>
+
+        <div class="lobby-cards">
+            <div class="flash-panel lobby-panel">
+                <h2 class="panel-heading">How To Play</h2>
+                <ul class="rule-list">
+                    <li>Find people who match the prompts.</li>
+                    <li>Click a square when you find a match.</li>
+                    <li>Score five in a row to win.</li>
+                </ul>
+            </div>
+
+            <div class="flash-panel lobby-panel lobby-panel-side">
+                <h2 class="panel-heading">Quick Tips</h2>
+                <ul class="lobby-tip-list">
+                    <li>Start with easy squares to build momentum.</li>
+                    <li>Move around the room between each match.</li>
+                    <li>Watch rows and diagonals as you play.</li>
+                </ul>
+            </div>
         </div>
 
-        <button onclick="launchGame()"
-                class="flash-btn flash-btn-primary">
-            Start Game
-        </button>
+        <div class="lobby-cta-wrap">
+            <button onclick="launchGame()"
+                    class="flash-btn flash-btn-primary lobby-start-btn">
+                Start Game
+            </button>
+            <p class="lobby-footnote">No setup required. Tap start and play.</p>
+        </div>
     </div>
 </div>
 

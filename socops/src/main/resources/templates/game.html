@@ -4,71 +4,77 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Soc Ops — Social Bingo</title>
-    <link rel="stylesheet" th:href="@{/css/app.css}"/>
-    <link rel="icon" type="image/png" th:href="@{/favicon.png}"/>
-</head>
-<body class="h-full flash-stage">
-
-<!-- ============================================================= -->
-<!--  LOBBY — visible before a game starts  (Variation B: Arcade Marquee) -->
-<!-- ============================================================= -->
-<div id="lobbyView" class="scene scene-lobby">
-    <div class="marquee-shell">
-
+    <link rel="stylesheet" th:href="@{/css/app.css}" />
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}" />
+  </head>
+  <body class="h-full flash-stage">
+    <!-- ============================================================= -->
+    <!--  LOBBY — visible before a game starts  (Variation B: Arcade Marquee) -->
+    <!-- ============================================================= -->
+    <div id="lobbyView" class="scene scene-lobby">
+      <div class="marquee-shell">
         <!-- ── Marquee Frame ── -->
         <div class="marquee-frame">
-            <div class="marquee-lights" aria-hidden="true"></div>
-            <div class="marquee-content">
-                <div class="marquee-badge">Social Bingo</div>
-                <h1 class="title-main">Soc Ops</h1>
-                <p class="marquee-tagline">Find &middot; Match &middot; Win</p>
-            </div>
-            <div class="marquee-lights" aria-hidden="true"></div>
+          <div class="marquee-lights" aria-hidden="true"></div>
+          <div class="marquee-content">
+            <div class="marquee-badge">Social Bingo</div>
+            <h1 class="title-main">Soc Ops</h1>
+            <p class="marquee-tagline">Find &middot; Match &middot; Win</p>
+          </div>
+          <div class="marquee-lights" aria-hidden="true"></div>
         </div>
 
         <!-- ── How To Play strip ── -->
         <div class="howto-strip" role="list" aria-label="How to play">
-            <div class="howto-tile" role="listitem">
-                <span class="howto-num" aria-hidden="true">1</span>
-                <span class="howto-text">Find someone who matches a prompt</span>
-            </div>
-            <div class="howto-tile" role="listitem">
-                <span class="howto-num" aria-hidden="true">2</span>
-                <span class="howto-text">Tap that square to mark it</span>
-            </div>
-            <div class="howto-tile" role="listitem">
-                <span class="howto-num" aria-hidden="true">3</span>
-                <span class="howto-text">Get five in a row to win</span>
-            </div>
+          <div class="howto-tile" role="listitem">
+            <span class="howto-num" aria-hidden="true">1</span>
+            <span class="howto-text">Find someone who matches a prompt</span>
+          </div>
+          <div class="howto-tile" role="listitem">
+            <span class="howto-num" aria-hidden="true">2</span>
+            <span class="howto-text">Tap that square to mark it</span>
+          </div>
+          <div class="howto-tile" role="listitem">
+            <span class="howto-num" aria-hidden="true">3</span>
+            <span class="howto-text">Get five in a row to win</span>
+          </div>
         </div>
 
         <!-- ── Start CTA ── -->
         <div class="mode-picker">
           <label for="modeSelect" class="mode-label">Mode</label>
-          <select id="modeSelect" class="mode-select" aria-label="Choose game mode">
+          <select
+            id="modeSelect"
+            class="mode-select"
+            aria-label="Choose game mode"
+          >
             <option value="BINGO">Bingo</option>
             <option value="HUNT">Scavenger Hunt</option>
           </select>
         </div>
 
-        <button onclick="launchGame()"
-                class="flash-btn flash-btn-primary marquee-cta">
-            &#9654; Start Game
+        <button
+          onclick="launchGame()"
+          class="flash-btn flash-btn-primary marquee-cta"
+        >
+          &#9654; Start Game
         </button>
 
         <!-- ── Quick Tips (informational only, no new actions) ── -->
         <div class="tips-block">
-            <span class="tips-label">Quick Tip</span>
-            <p class="tips-text">The center square is FREE. Diagonals count &mdash; aim for the corners!</p>
+          <span class="tips-label">Quick Tip</span>
+          <p class="tips-text">
+            The center square is FREE. Diagonals count &mdash; aim for the
+            corners!
+          </p>
         </div>
-
+      </div>
     </div>
-</div>
 
-<!-- ============================================================= -->
-<!--  ACTIVE GAME — board, header, optional bingo banner            -->
-<!-- ============================================================= -->
-<div id="activeView" class="scene scene-active" style="display: none">
+    <!-- ============================================================= -->
+    <!--  ACTIVE GAME — board, header, optional bingo banner            -->
+    <!-- ============================================================= -->
+    <div id="activeView" class="scene scene-active" style="display: none">
       <!-- top bar -->
       <header class="top-console">
         <button
@@ -108,7 +114,11 @@
               <span id="huntProgressText">0 of 24 complete</span>
             </div>
             <div class="hunt-progress-track">
-              <div id="huntProgressMeter" class="hunt-progress-meter" style="width: 0%"></div>
+              <div
+                id="huntProgressMeter"
+                class="hunt-progress-meter"
+                style="width: 0%"
+              ></div>
             </div>
           </div>
 
@@ -119,10 +129,10 @@
       </div>
     </div>
 
-<!-- ============================================================= -->
-<!--  VICTORY MODAL — overlays the board                            -->
-<!-- ============================================================= -->
-<div id="victoryOverlay" class="victory-overlay" style="display: none">
+    <!-- ============================================================= -->
+    <!--  VICTORY MODAL — overlays the board                            -->
+    <!-- ============================================================= -->
+    <div id="victoryOverlay" class="victory-overlay" style="display: none">
       <div class="victory-card">
         <div class="victory-icon">&#127881;</div>
         <h2 id="victoryTitle" class="victory-title">BINGO!</h2>
@@ -136,10 +146,10 @@
       </div>
     </div>
 
-<!-- ============================================================= -->
-<!--  Client-side game engine                                       -->
-<!-- ============================================================= -->
-<script>
+    <!-- ============================================================= -->
+    <!--  Client-side game engine                                       -->
+    <!-- ============================================================= -->
+    <script>
       (function () {
         "use strict";
 
@@ -266,7 +276,8 @@
             }
 
             var row = document.createElement("button");
-            row.className = "hunt-row" + (item.checked ? " hunt-row-checked" : "");
+            row.className =
+              "hunt-row" + (item.checked ? " hunt-row-checked" : "");
             row.setAttribute("type", "button");
             row.setAttribute("aria-pressed", String(item.checked));
             row.setAttribute("aria-label", item.prompt);
@@ -292,9 +303,13 @@
             huntListContainer.appendChild(row);
           }
 
-          var percent = huntItems.length === 0 ? 0 : Math.round((done * 100) / huntItems.length);
+          var percent =
+            huntItems.length === 0
+              ? 0
+              : Math.round((done * 100) / huntItems.length);
           huntProgressMeter.style.width = percent + "%";
-          huntProgressText.textContent = done + " of " + huntItems.length + " complete";
+          huntProgressText.textContent =
+            done + " of " + huntItems.length + " complete";
         }
 
         /* ── tile tap logic ───────────────────────────────────────── */
@@ -327,7 +342,13 @@
             return item;
           });
 
-          if (!streakFound && huntItems.length > 0 && huntItems.every(function (item) { return item.checked; })) {
+          if (
+            !streakFound &&
+            huntItems.length > 0 &&
+            huntItems.every(function (item) {
+              return item.checked;
+            })
+          ) {
             streakFound = {
               direction: "hunt",
               index: 0,
@@ -493,9 +514,10 @@
             currentMode = modeSelect.value === "HUNT" ? "HUNT" : "BINGO";
           }
 
-          var endpoint = currentMode === "HUNT"
-            ? "/api/hunt/fresh-list"
-            : "/api/bingo/fresh-board";
+          var endpoint =
+            currentMode === "HUNT"
+              ? "/api/hunt/fresh-list"
+              : "/api/bingo/fresh-board";
 
           fetch(endpoint)
             .then(function (resp) {

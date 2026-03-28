@@ -1,7 +1,9 @@
 package com.socops.web;
 
 import com.socops.model.BingoCell;
+import com.socops.model.HuntItem;
 import com.socops.service.BoardAssembler;
+import com.socops.service.HuntAssembler;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,5 +24,11 @@ public class BingoRestController {
     @ResponseBody
     public List<BingoCell> dispenseFreshBoard() {
         return BoardAssembler.assembleNewBoard();
+    }
+
+    @GetMapping("/api/hunt/fresh-list")
+    @ResponseBody
+    public List<HuntItem> dispenseFreshHuntList() {
+        return HuntAssembler.assembleNewList();
     }
 }

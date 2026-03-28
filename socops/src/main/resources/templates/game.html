@@ -43,6 +43,14 @@
         </div>
 
         <!-- ── Start CTA ── -->
+        <div class="mode-picker">
+          <label for="modeSelect" class="mode-label">Mode</label>
+          <select id="modeSelect" class="mode-select" aria-label="Choose game mode">
+            <option value="BINGO">Bingo</option>
+            <option value="HUNT">Scavenger Hunt</option>
+          </select>
+        </div>
+
         <button onclick="launchGame()"
                 class="flash-btn flash-btn-primary marquee-cta">
             &#9654; Start Game
@@ -55,11 +63,12 @@
         </div>
 
     </div>
+</div>
 
-    <!-- ============================================================= -->
-    <!--  ACTIVE GAME — board, header, optional bingo banner            -->
-    <!-- ============================================================= -->
-    <div id="activeView" class="scene scene-active" style="display: none">
+<!-- ============================================================= -->
+<!--  ACTIVE GAME — board, header, optional bingo banner            -->
+<!-- ============================================================= -->
+<div id="activeView" class="scene scene-active" style="display: none">
       <!-- top bar -->
       <header class="top-console">
         <button
@@ -73,7 +82,7 @@
       </header>
 
       <!-- hint -->
-      <p class="status-hint">
+      <p id="statusHint" class="status-hint">
         Tap a square when you find someone who matches it.
       </p>
 
@@ -90,16 +99,34 @@
           </div>
         </div>
       </div>
+
+      <div id="huntView" class="hunt-view" style="display: none">
+        <div class="hunt-wrap">
+          <div class="hunt-progress-panel">
+            <div class="hunt-progress-head">
+              <span>Progress</span>
+              <span id="huntProgressText">0 of 24 complete</span>
+            </div>
+            <div class="hunt-progress-track">
+              <div id="huntProgressMeter" class="hunt-progress-meter" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div id="huntListContainer" class="hunt-list-container">
+            <!-- checklist items injected by JS -->
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- ============================================================= -->
-    <!--  VICTORY MODAL — overlays the board                            -->
-    <!-- ============================================================= -->
-    <div id="victoryOverlay" class="victory-overlay" style="display: none">
+<!-- ============================================================= -->
+<!--  VICTORY MODAL — overlays the board                            -->
+<!-- ============================================================= -->
+<div id="victoryOverlay" class="victory-overlay" style="display: none">
       <div class="victory-card">
         <div class="victory-icon">&#127881;</div>
-        <h2 class="victory-title">BINGO!</h2>
-        <p class="victory-text">You completed a line!</p>
+        <h2 id="victoryTitle" class="victory-title">BINGO!</h2>
+        <p id="victoryText" class="victory-text">You completed a line!</p>
         <button
           onclick="dismissVictoryModal()"
           class="flash-btn flash-btn-primary"
@@ -109,10 +136,10 @@
       </div>
     </div>
 
-    <!-- ============================================================= -->
-    <!--  Client-side game engine                                       -->
-    <!-- ============================================================= -->
-    <script>
+<!-- ============================================================= -->
+<!--  Client-side game engine                                       -->
+<!-- ============================================================= -->
+<script>
       (function () {
         "use strict";
 
@@ -121,7 +148,9 @@
         var PERSIST_KEY = "socops-bingo-snapshot";
 
         /* ── state ────────────────────────────────────────────────── */
+        var currentMode = "BINGO"; /* BINGO | HUNT */
         var liveTiles = []; /* Array of BingoCell objects  */
+        var huntItems = []; /* Array of HuntItem objects   */
         var streakFound = null; /* WinningStreak or null       */
         var modalShown = false;
         var currentPhase = "LOBBY"; /* LOBBY | ACTIVE | VICTORY    */
@@ -129,9 +158,34 @@
         /* ── DOM refs ─────────────────────────────────────────────── */
         var lobbyDiv = document.getElementById("lobbyView");
         var activeDiv = document.getElementById("activeView");
+        var statusHint = document.getElementById("statusHint");
+        var modeSelect = document.getElementById("modeSelect");
+        var boardRegion = document.querySelector(".board-region");
         var gridDiv = document.getElementById("gridContainer");
+        var huntView = document.getElementById("huntView");
+        var huntListContainer = document.getElementById("huntListContainer");
+        var huntProgressMeter = document.getElementById("huntProgressMeter");
+        var huntProgressText = document.getElementById("huntProgressText");
         var bannerDiv = document.getElementById("bingoBanner");
         var overlayDiv = document.getElementById("victoryOverlay");
+        var victoryTitle = document.getElementById("victoryTitle");
+        var victoryText = document.getElementById("victoryText");
+
+        function applyModeUi() {
+          var hunt = currentMode === "HUNT";
+          boardRegion.style.display = hunt ? "none" : "flex";
+          huntView.style.display = hunt ? "" : "none";
+          statusHint.textContent = hunt
+            ? "Check each prompt as you find a match."
+            : "Tap a square when you find someone who matches it.";
+          bannerDiv.textContent = hunt
+            ? "\ud83c\udf89 Hunt Complete!"
+            : "\ud83c\udf89 BINGO! You got a line!";
+          victoryTitle.textContent = hunt ? "HUNT COMPLETE!" : "BINGO!";
+          victoryText.textContent = hunt
+            ? "You checked every item!"
+            : "You completed a line!";
+        }
 
         /* ── phase switching ──────────────────────────────────────── */
         function showPhase(phase) {
@@ -140,6 +194,7 @@
           activeDiv.style.display = phase !== "LOBBY" ? "" : "none";
           bannerDiv.style.display = streakFound ? "" : "none";
           overlayDiv.style.display = modalShown ? "" : "none";
+          applyModeUi();
         }
 
         /* ── board rendering ──────────────────────────────────────── */
@@ -200,6 +255,48 @@
           }
         }
 
+        function paintHuntList() {
+          huntListContainer.innerHTML = "";
+          var done = 0;
+
+          for (var i = 0; i < huntItems.length; i++) {
+            var item = huntItems[i];
+            if (item.checked) {
+              done++;
+            }
+
+            var row = document.createElement("button");
+            row.className = "hunt-row" + (item.checked ? " hunt-row-checked" : "");
+            row.setAttribute("type", "button");
+            row.setAttribute("aria-pressed", String(item.checked));
+            row.setAttribute("aria-label", item.prompt);
+            row.addEventListener(
+              "click",
+              (function (cid) {
+                return function () {
+                  onHuntItemTapped(cid);
+                };
+              })(item.id),
+            );
+
+            var box = document.createElement("span");
+            box.className = "hunt-checkbox";
+            box.textContent = item.checked ? "\u2713" : "";
+
+            var label = document.createElement("span");
+            label.className = "hunt-label";
+            label.textContent = item.prompt;
+
+            row.appendChild(box);
+            row.appendChild(label);
+            huntListContainer.appendChild(row);
+          }
+
+          var percent = huntItems.length === 0 ? 0 : Math.round((done * 100) / huntItems.length);
+          huntProgressMeter.style.width = percent + "%";
+          huntProgressText.textContent = done + " of " + huntItems.length + " complete";
+        }
+
         /* ── tile tap logic ───────────────────────────────────────── */
         function onTileTapped(cellId) {
           liveTiles = flipTile(liveTiles, cellId);
@@ -214,6 +311,34 @@
           }
           persistSnapshot();
           paintGrid();
+          bannerDiv.style.display = streakFound ? "" : "none";
+          overlayDiv.style.display = modalShown ? "" : "none";
+        }
+
+        function onHuntItemTapped(itemId) {
+          huntItems = huntItems.map(function (item) {
+            if (item.id === itemId) {
+              return {
+                id: item.id,
+                prompt: item.prompt,
+                checked: !item.checked,
+              };
+            }
+            return item;
+          });
+
+          if (!streakFound && huntItems.length > 0 && huntItems.every(function (item) { return item.checked; })) {
+            streakFound = {
+              direction: "hunt",
+              index: 0,
+              cellPositions: [],
+            };
+            currentPhase = "VICTORY";
+            modalShown = true;
+          }
+
+          persistSnapshot();
+          paintHuntList();
           bannerDiv.style.display = streakFound ? "" : "none";
           overlayDiv.style.display = modalShown ? "" : "none";
         }
@@ -313,8 +438,10 @@
         function persistSnapshot() {
           try {
             var blob = JSON.stringify({
+              mode: currentMode,
               phase: currentPhase,
               tiles: liveTiles,
+              huntItems: huntItems,
               streak: streakFound,
               modal: modalShown,
             });
@@ -331,13 +458,29 @@
               return false;
             }
             var snap = JSON.parse(raw);
-            if (!snap.tiles || snap.tiles.length !== TOTAL_CELLS) {
-              return false;
+            currentMode = snap.mode === "HUNT" ? "HUNT" : "BINGO";
+
+            if (currentMode === "BINGO") {
+              if (!snap.tiles || snap.tiles.length !== TOTAL_CELLS) {
+                return false;
+              }
+              liveTiles = snap.tiles;
+              huntItems = [];
+            } else {
+              if (!snap.huntItems || !Array.isArray(snap.huntItems)) {
+                return false;
+              }
+              huntItems = snap.huntItems;
+              liveTiles = [];
             }
-            liveTiles = snap.tiles;
+
             streakFound = snap.streak || null;
             modalShown = !!snap.modal;
             currentPhase = snap.phase || "ACTIVE";
+
+            if (modeSelect) {
+              modeSelect.value = currentMode;
+            }
             return currentPhase !== "LOBBY";
           } catch (_) {
             return false;
@@ -346,23 +489,42 @@
 
         /* ── public API (called from onclick attrs) ───────────────── */
         window.launchGame = function () {
-          fetch("/api/bingo/fresh-board")
+          if (modeSelect) {
+            currentMode = modeSelect.value === "HUNT" ? "HUNT" : "BINGO";
+          }
+
+          var endpoint = currentMode === "HUNT"
+            ? "/api/hunt/fresh-list"
+            : "/api/bingo/fresh-board";
+
+          fetch(endpoint)
             .then(function (resp) {
               return resp.json();
             })
-            .then(function (cells) {
-              liveTiles = cells;
+            .then(function (payload) {
+              if (currentMode === "HUNT") {
+                huntItems = payload;
+                liveTiles = [];
+              } else {
+                liveTiles = payload;
+                huntItems = [];
+              }
               streakFound = null;
               modalShown = false;
               currentPhase = "ACTIVE";
               persistSnapshot();
-              paintGrid();
+              if (currentMode === "HUNT") {
+                paintHuntList();
+              } else {
+                paintGrid();
+              }
               showPhase("ACTIVE");
             });
         };
 
         window.retreatToLobby = function () {
           liveTiles = [];
+          huntItems = [];
           streakFound = null;
           modalShown = false;
           currentPhase = "LOBBY";
@@ -378,7 +540,11 @@
 
         /* ── boot ─────────────────────────────────────────────────── */
         if (restoreSnapshot()) {
-          paintGrid();
+          if (currentMode === "HUNT") {
+            paintHuntList();
+          } else {
+            paintGrid();
+          }
           showPhase(currentPhase);
         } else {
           showPhase("LOBBY");

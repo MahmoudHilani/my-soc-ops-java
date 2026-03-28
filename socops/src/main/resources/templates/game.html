@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-<meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Soc Ops — Social Bingo</title>
     <link rel="stylesheet" th:href="@{/css/app.css}"/>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}"/>
@@ -55,102 +55,99 @@
         </div>
 
     </div>
-</div>
 
-<!-- ============================================================= -->
-<!--  ACTIVE GAME — board, header, optional bingo banner            -->
-<!-- ============================================================= -->
-<div id="activeView" class="scene scene-active" style="display:none">
-
-    <!-- top bar -->
-    <header class="top-console">
-        <button onclick="retreatToLobby()"
-                class="flash-btn flash-btn-ghost flash-btn-sm">
-            &#8592; Back
+    <!-- ============================================================= -->
+    <!--  ACTIVE GAME — board, header, optional bingo banner            -->
+    <!-- ============================================================= -->
+    <div id="activeView" class="scene scene-active" style="display: none">
+      <!-- top bar -->
+      <header class="top-console">
+        <button
+          onclick="retreatToLobby()"
+          class="flash-btn flash-btn-ghost flash-btn-sm"
+        >
+          &#8592; Back
         </button>
         <h1 class="top-title">Soc Ops</h1>
         <div class="header-pad"></div>
-    </header>
+      </header>
 
-    <!-- hint -->
-    <p class="status-hint">
+      <!-- hint -->
+      <p class="status-hint">
         Tap a square when you find someone who matches it.
-    </p>
+      </p>
 
-    <!-- bingo banner (hidden until victory) -->
-    <div id="bingoBanner"
-         class="bingo-banner"
-         style="display:none">
+      <!-- bingo banner (hidden until victory) -->
+      <div id="bingoBanner" class="bingo-banner" style="display: none">
         &#127881; BINGO! You got a line!
-    </div>
+      </div>
 
-    <!-- the 5×5 grid -->
-    <div class="board-region">
+      <!-- the 5×5 grid -->
+      <div class="board-region">
         <div class="board-wrap">
-        <div id="gridContainer"
-             class="bingo-grid">
+          <div id="gridContainer" class="bingo-grid">
             <!-- tiles injected by JS -->
+          </div>
         </div>
-        </div>
+      </div>
     </div>
-</div>
 
-<!-- ============================================================= -->
-<!--  VICTORY MODAL — overlays the board                            -->
-<!-- ============================================================= -->
-<div id="victoryOverlay"
-     class="victory-overlay"
-     style="display:none">
-    <div class="victory-card">
+    <!-- ============================================================= -->
+    <!--  VICTORY MODAL — overlays the board                            -->
+    <!-- ============================================================= -->
+    <div id="victoryOverlay" class="victory-overlay" style="display: none">
+      <div class="victory-card">
         <div class="victory-icon">&#127881;</div>
         <h2 class="victory-title">BINGO!</h2>
         <p class="victory-text">You completed a line!</p>
-        <button onclick="dismissVictoryModal()"
-                class="flash-btn flash-btn-primary">
-            Keep Playing
+        <button
+          onclick="dismissVictoryModal()"
+          class="flash-btn flash-btn-primary"
+        >
+          Keep Playing
         </button>
+      </div>
     </div>
-</div>
 
-<!-- ============================================================= -->
-<!--  Client-side game engine                                       -->
-<!-- ============================================================= -->
-<script>
-(function () {
-    "use strict";
+    <!-- ============================================================= -->
+    <!--  Client-side game engine                                       -->
+    <!-- ============================================================= -->
+    <script>
+      (function () {
+        "use strict";
 
-    var SIDE = 5;
-    var TOTAL_CELLS = SIDE * SIDE;
-    var PERSIST_KEY = "socops-bingo-snapshot";
+        var SIDE = 5;
+        var TOTAL_CELLS = SIDE * SIDE;
+        var PERSIST_KEY = "socops-bingo-snapshot";
 
-    /* ── state ────────────────────────────────────────────────── */
-    var liveTiles   = [];          /* Array of BingoCell objects  */
-    var streakFound = null;        /* WinningStreak or null       */
-    var modalShown  = false;
-    var currentPhase = "LOBBY";    /* LOBBY | ACTIVE | VICTORY    */
+        /* ── state ────────────────────────────────────────────────── */
+        var liveTiles = []; /* Array of BingoCell objects  */
+        var streakFound = null; /* WinningStreak or null       */
+        var modalShown = false;
+        var currentPhase = "LOBBY"; /* LOBBY | ACTIVE | VICTORY    */
 
-    /* ── DOM refs ─────────────────────────────────────────────── */
-    var lobbyDiv   = document.getElementById("lobbyView");
-    var activeDiv  = document.getElementById("activeView");
-    var gridDiv    = document.getElementById("gridContainer");
-    var bannerDiv  = document.getElementById("bingoBanner");
-    var overlayDiv = document.getElementById("victoryOverlay");
+        /* ── DOM refs ─────────────────────────────────────────────── */
+        var lobbyDiv = document.getElementById("lobbyView");
+        var activeDiv = document.getElementById("activeView");
+        var gridDiv = document.getElementById("gridContainer");
+        var bannerDiv = document.getElementById("bingoBanner");
+        var overlayDiv = document.getElementById("victoryOverlay");
 
-    /* ── phase switching ──────────────────────────────────────── */
-    function showPhase(phase) {
-        currentPhase = phase;
-        lobbyDiv.style.display   = (phase === "LOBBY") ? "" : "none";
-        activeDiv.style.display  = (phase !== "LOBBY") ? "" : "none";
-        bannerDiv.style.display  = (streakFound)       ? "" : "none";
-        overlayDiv.style.display = (modalShown)        ? "" : "none";
-    }
+        /* ── phase switching ──────────────────────────────────────── */
+        function showPhase(phase) {
+          currentPhase = phase;
+          lobbyDiv.style.display = phase === "LOBBY" ? "" : "none";
+          activeDiv.style.display = phase !== "LOBBY" ? "" : "none";
+          bannerDiv.style.display = streakFound ? "" : "none";
+          overlayDiv.style.display = modalShown ? "" : "none";
+        }
 
-    /* ── board rendering ──────────────────────────────────────── */
-    function paintGrid() {
-        gridDiv.innerHTML = "";
-        var winIds = streakFound ? gatherStreakIds(streakFound) : {};
+        /* ── board rendering ──────────────────────────────────────── */
+        function paintGrid() {
+          gridDiv.innerHTML = "";
+          var winIds = streakFound ? gatherStreakIds(streakFound) : {};
 
-        for (var t = 0; t < liveTiles.length; t++) {
+          for (var t = 0; t < liveTiles.length; t++) {
             var tile = liveTiles[t];
             var btn = document.createElement("button");
 
@@ -158,19 +155,22 @@
 
             var state;
             if (tile.selected) {
-                state = winIds[tile.id]
-                    ? "tile-win"
-                    : "tile-marked";
+              state = winIds[tile.id] ? "tile-win" : "tile-marked";
             } else {
-                state = "";
+              state = "";
             }
 
             var extra = tile.freeCell ? " tile-free" : "";
             btn.className = base + " " + state + extra;
 
-            if (tile.freeCell) { btn.disabled = true; }
+            if (tile.freeCell) {
+              btn.disabled = true;
+            }
             btn.setAttribute("aria-pressed", String(tile.selected));
-            btn.setAttribute("aria-label", tile.freeCell ? "Free space" : tile.prompt);
+            btn.setAttribute(
+              "aria-label",
+              tile.freeCell ? "Free space" : tile.prompt,
+            );
 
             /* inner label */
             var labelSpan = document.createElement("span");
@@ -180,169 +180,210 @@
 
             /* check-mark for marked non-free tiles */
             if (tile.selected && !tile.freeCell) {
-                var tick = document.createElement("span");
-                tick.className = "tile-tick";
-                tick.textContent = "\u2713";
-                btn.appendChild(tick);
+              var tick = document.createElement("span");
+              tick.className = "tile-tick";
+              tick.textContent = "\u2713";
+              btn.appendChild(tick);
             }
 
             /* click handler (closure over tile id) */
-            btn.addEventListener("click", (function (cid) {
-                return function () { onTileTapped(cid); };
-            })(tile.id));
+            btn.addEventListener(
+              "click",
+              (function (cid) {
+                return function () {
+                  onTileTapped(cid);
+                };
+              })(tile.id),
+            );
 
             gridDiv.appendChild(btn);
+          }
         }
-    }
 
-    /* ── tile tap logic ───────────────────────────────────────── */
-    function onTileTapped(cellId) {
-        liveTiles = flipTile(liveTiles, cellId);
+        /* ── tile tap logic ───────────────────────────────────────── */
+        function onTileTapped(cellId) {
+          liveTiles = flipTile(liveTiles, cellId);
 
-        if (!streakFound) {
+          if (!streakFound) {
             var detected = scanForStreak(liveTiles);
             if (detected) {
-                streakFound = detected;
-                currentPhase = "VICTORY";
-                modalShown = true;
+              streakFound = detected;
+              currentPhase = "VICTORY";
+              modalShown = true;
             }
+          }
+          persistSnapshot();
+          paintGrid();
+          bannerDiv.style.display = streakFound ? "" : "none";
+          overlayDiv.style.display = modalShown ? "" : "none";
         }
-        persistSnapshot();
-        paintGrid();
-        bannerDiv.style.display  = streakFound ? "" : "none";
-        overlayDiv.style.display = modalShown  ? "" : "none";
-    }
 
-    /* ── board manipulation (mirrors BoardAssembler.java) ─────── */
-    function flipTile(board, cellId) {
-        return board.map(function (c) {
+        /* ── board manipulation (mirrors BoardAssembler.java) ─────── */
+        function flipTile(board, cellId) {
+          return board.map(function (c) {
             if (c.id === cellId && !c.freeCell) {
-                return { id: c.id, prompt: c.prompt, selected: !c.selected, freeCell: false };
+              return {
+                id: c.id,
+                prompt: c.prompt,
+                selected: !c.selected,
+                freeCell: false,
+              };
             }
             return c;
-        });
-    }
+          });
+        }
 
-    /* ── victory scanning (mirrors detectWinningStreak) ───────── */
-    function scanForStreak(board) {
-        var r, c, positions, i;
+        /* ── victory scanning (mirrors detectWinningStreak) ───────── */
+        function scanForStreak(board) {
+          var r, c, positions, i;
 
-        /* rows */
-        for (r = 0; r < SIDE; r++) {
+          /* rows */
+          for (r = 0; r < SIDE; r++) {
             positions = [];
-            for (c = 0; c < SIDE; c++) { positions.push(r * SIDE + c); }
-            if (lineComplete(board, positions)) {
-                return { direction: "row", index: r, cellPositions: positions };
+            for (c = 0; c < SIDE; c++) {
+              positions.push(r * SIDE + c);
             }
-        }
+            if (lineComplete(board, positions)) {
+              return { direction: "row", index: r, cellPositions: positions };
+            }
+          }
 
-        /* columns */
-        for (c = 0; c < SIDE; c++) {
+          /* columns */
+          for (c = 0; c < SIDE; c++) {
             positions = [];
-            for (r = 0; r < SIDE; r++) { positions.push(r * SIDE + c); }
-            if (lineComplete(board, positions)) {
-                return { direction: "column", index: c, cellPositions: positions };
+            for (r = 0; r < SIDE; r++) {
+              positions.push(r * SIDE + c);
             }
+            if (lineComplete(board, positions)) {
+              return {
+                direction: "column",
+                index: c,
+                cellPositions: positions,
+              };
+            }
+          }
+
+          /* main diagonal */
+          positions = [];
+          for (i = 0; i < SIDE; i++) {
+            positions.push(i * SIDE + i);
+          }
+          if (lineComplete(board, positions)) {
+            return {
+              direction: "diagonal",
+              index: 0,
+              cellPositions: positions,
+            };
+          }
+
+          /* anti diagonal */
+          positions = [];
+          for (i = 0; i < SIDE; i++) {
+            positions.push(i * SIDE + (SIDE - 1 - i));
+          }
+          if (lineComplete(board, positions)) {
+            return {
+              direction: "diagonal",
+              index: 1,
+              cellPositions: positions,
+            };
+          }
+
+          return null;
         }
 
-        /* main diagonal */
-        positions = [];
-        for (i = 0; i < SIDE; i++) { positions.push(i * SIDE + i); }
-        if (lineComplete(board, positions)) {
-            return { direction: "diagonal", index: 0, cellPositions: positions };
+        function lineComplete(board, positions) {
+          for (var k = 0; k < positions.length; k++) {
+            if (!board[positions[k]].selected) {
+              return false;
+            }
+          }
+          return true;
         }
 
-        /* anti diagonal */
-        positions = [];
-        for (i = 0; i < SIDE; i++) { positions.push(i * SIDE + (SIDE - 1 - i)); }
-        if (lineComplete(board, positions)) {
-            return { direction: "diagonal", index: 1, cellPositions: positions };
-        }
-
-        return null;
-    }
-
-    function lineComplete(board, positions) {
-        for (var k = 0; k < positions.length; k++) {
-            if (!board[positions[k]].selected) { return false; }
-        }
-        return true;
-    }
-
-    function gatherStreakIds(streak) {
-        var lookup = {};
-        for (var j = 0; j < streak.cellPositions.length; j++) {
+        function gatherStreakIds(streak) {
+          var lookup = {};
+          for (var j = 0; j < streak.cellPositions.length; j++) {
             lookup[streak.cellPositions[j]] = true;
+          }
+          return lookup;
         }
-        return lookup;
-    }
 
-    /* ── localStorage persistence ─────────────────────────────── */
-    function persistSnapshot() {
-        try {
+        /* ── localStorage persistence ─────────────────────────────── */
+        function persistSnapshot() {
+          try {
             var blob = JSON.stringify({
-                phase: currentPhase,
-                tiles: liveTiles,
-                streak: streakFound,
-                modal: modalShown
+              phase: currentPhase,
+              tiles: liveTiles,
+              streak: streakFound,
+              modal: modalShown,
             });
             localStorage.setItem(PERSIST_KEY, blob);
-        } catch (_) { /* storage full or unavailable */ }
-    }
+          } catch (_) {
+            /* storage full or unavailable */
+          }
+        }
 
-    function restoreSnapshot() {
-        try {
+        function restoreSnapshot() {
+          try {
             var raw = localStorage.getItem(PERSIST_KEY);
-            if (!raw) { return false; }
+            if (!raw) {
+              return false;
+            }
             var snap = JSON.parse(raw);
-            if (!snap.tiles || snap.tiles.length !== TOTAL_CELLS) { return false; }
-            liveTiles   = snap.tiles;
+            if (!snap.tiles || snap.tiles.length !== TOTAL_CELLS) {
+              return false;
+            }
+            liveTiles = snap.tiles;
             streakFound = snap.streak || null;
-            modalShown  = !!snap.modal;
+            modalShown = !!snap.modal;
             currentPhase = snap.phase || "ACTIVE";
             return currentPhase !== "LOBBY";
-        } catch (_) { return false; }
-    }
+          } catch (_) {
+            return false;
+          }
+        }
 
-    /* ── public API (called from onclick attrs) ───────────────── */
-    window.launchGame = function () {
-        fetch("/api/bingo/fresh-board")
-            .then(function (resp) { return resp.json(); })
+        /* ── public API (called from onclick attrs) ───────────────── */
+        window.launchGame = function () {
+          fetch("/api/bingo/fresh-board")
+            .then(function (resp) {
+              return resp.json();
+            })
             .then(function (cells) {
-                liveTiles   = cells;
-                streakFound = null;
-                modalShown  = false;
-                currentPhase = "ACTIVE";
-                persistSnapshot();
-                paintGrid();
-                showPhase("ACTIVE");
+              liveTiles = cells;
+              streakFound = null;
+              modalShown = false;
+              currentPhase = "ACTIVE";
+              persistSnapshot();
+              paintGrid();
+              showPhase("ACTIVE");
             });
-    };
+        };
 
-    window.retreatToLobby = function () {
-        liveTiles   = [];
-        streakFound = null;
-        modalShown  = false;
-        currentPhase = "LOBBY";
-        persistSnapshot();
-        showPhase("LOBBY");
-    };
+        window.retreatToLobby = function () {
+          liveTiles = [];
+          streakFound = null;
+          modalShown = false;
+          currentPhase = "LOBBY";
+          persistSnapshot();
+          showPhase("LOBBY");
+        };
 
-    window.dismissVictoryModal = function () {
-        modalShown = false;
-        overlayDiv.style.display = "none";
-        persistSnapshot();
-    };
+        window.dismissVictoryModal = function () {
+          modalShown = false;
+          overlayDiv.style.display = "none";
+          persistSnapshot();
+        };
 
-    /* ── boot ─────────────────────────────────────────────────── */
-    if (restoreSnapshot()) {
-        paintGrid();
-        showPhase(currentPhase);
-    } else {
-        showPhase("LOBBY");
-    }
-})();
-</script>
-
-</body>
+        /* ── boot ─────────────────────────────────────────────────── */
+        if (restoreSnapshot()) {
+          paintGrid();
+          showPhase(currentPhase);
+        } else {
+          showPhase("LOBBY");
+        }
+      })();
+    </script>
+  </body>
 </html>
